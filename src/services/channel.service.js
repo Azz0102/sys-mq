@@ -1,6 +1,6 @@
 "use strict";
 const amqp = require("amqplib/callback_api");
-
+const { connectToRabbitMQ } = require("../dbs/init.rabbit");
 const Subscription = require("./subscription.service");
 function obj() {
     this.openConnection = async () => {
@@ -19,19 +19,24 @@ function obj() {
 
     this.createchannel = async (conn, queue, userid, socket, io) => {
         try {
-            await conn.createChannel((err, ch) => {
+            await conn.createChannel(async (err, ch) => {
                 if (err) {
                     throw err;
                 }
-                ch.assertQueue(queue);
+                await ch.assertQueue(queue);
 
                 console.log("Channel created for User " + queue);
                 global.onlineusers[userid] = ch;
                 global.onlineusers[queue] = socket.id;
 
-                ch.consume(
-                    queue,
-                    async (msg) => {
+                ch.prefetch(1);
+
+                ch.consume(queue, async (msg) => {
+                    try {
+                        const { content, title, subscription } = JSON.parse(msg.content.toString());
+
+                        console.log("Message received: ", message);
+
                         console.log(
                             "Msg received for Queue " +
                                 queue +
@@ -39,31 +44,30 @@ function obj() {
                                 msg.content.toString()
                         );
 
-                        const { message, data } = JSON.parse(
-                            msg.content.toString()
-                        );
+                        // const userSub = data.find(
+                        //     (user) => user.name === queue
+                        // );
 
-                        const userSub = data.find(
-                            (user) => user.name === queue
-                        );
+                        // if (!userSub) {
+                        //     console.log(
+                        //         "No subscription found for user " + queue
+                        //     );
+                        //     ch.ack(msg);
+                        //     return;
+                        // }
 
-                        if (!userSub) {
-                            console.log(
-                                "No subscription found for user " + queue
-                            );
-                            return;
-                        }
+                        // const formattedSubscription = userSub.Subscription.map(
+                        //     (sub) => ({
+                        //         endpoint: sub.endpoint,
+                        //         expirationTime: sub.expirationTime,
+                        //         keys: {
+                        //             p256dh: sub.p256dh,
+                        //             auth: sub.auth,
+                        //         },
+                        //     })
+                        // );
 
-                        const formattedSubscription = userSub.Subscription.map(
-                            (sub) => ({
-                                endpoint: sub.endpoint,
-                                expirationTime: sub.expirationTime,
-                                keys: {
-                                    p256dh: sub.p256dh,
-                                    auth: sub.auth,
-                                },
-                            })
-                        );
+                        const formattedSubscription = {};
 
                         await Subscription.pushToSubscription(
                             formattedSubscription,
@@ -79,8 +83,43 @@ function obj() {
                         //     "message",
                         //     message
                         // );
+                        ch.ack(msg);
+                    } catch (error) {
+                        console.error(`Error processing message:`, error);
+                        ch.nack(msg, false, false);
+                    }
+                });
+
+                // Failed queue processing
+                const notificationExchangeDLX = "notificationExDLX" + queue;
+                const notificationRoutingKeyDLX =
+                    "notificationRoutingKeyDLX" + queue;
+                const notiQueueHandle = "notificationQueueHotFix" + queue;
+
+                await ch.assertExchange(notificationExchangeDLX, "direct", {
+                    durable: true,
+                });
+
+                const queueResult = await ch.assertQueue(notiQueueHandle, {
+                    exclusive: false,
+                });
+
+                await ch.bindQueue(
+                    queueResult.queue,
+                    notificationExchangeDLX,
+                    notificationRoutingKeyDLX
+                );
+
+                await ch.consume(
+                    queueResult.queue,
+                    (msgFailed) => {
+                        console.log(
+                            `This notification error, please hot fix:: ${msgFailed.content.toString()}`
+                        );
                     },
-                    { noAck: true }
+                    {
+                        noAck: true,
+                    }
                 );
             });
         } catch (error) {

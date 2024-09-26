@@ -31,15 +31,6 @@ const messageService = {
             // 2. LOGIC
             channel.consume(notiQueue, (msg) => {
                 try {
-                    const numberTest = Math.random();
-                    console.log({ numberTest });
-                    if (numberTest < 0.8) {
-                        throw new Error(`Send notification failed:: HOT FIX`);
-                    }
-
-                    console.log(
-                        `Send notificationQueue successfully processed ${msg.content.toString()}`
-                    );
                     channel.ack(msg);
                 } catch (error) {
                     // console.error(`Send notification error:`, error);

@@ -4,70 +4,54 @@
 const webpush = require("web-push");
 require("dotenv");
 
-// const vapidKeys = {
-//     privateKey: process.env.PRIVATE_VAPID_KEY,
-//     publicKey: process.env.PUBLIC_VAPID_KEY,
-// };
+const admin = require("firebase-admin");
 
-// webpush.setVapidDetails(
-//     "mailto:example@yourdomain.org",
-//     vapidKeys.publicKey,
-//     vapidKeys.privateKey
-// );
-
-// function createHash(input) {
-//     const md5sum = crypto.createHash("md5");
-//     md5sum.update(Buffer.from(input));
-//     return md5sum.digest("hex");
-// }
-
-// function handlePushNotificationSubscription(req, res) {
-//     const subscriptionRequest = req.body.data;
-//     const susbscriptionId = createHash(JSON.stringify(subscriptionRequest));
-//     subscriptions[susbscriptionId] = subscriptionRequest;
-//     res.status(201).json({ id: susbscriptionId });
-// }
-
-// function sendPushNotification(req, res) {
-//     const subscriptionId = req.params.id;
-//     const pushSubscription = subscriptions[subscriptionId];
-//     webpush
-//         .sendNotification(
-//             pushSubscription,
-//             JSON.stringify({
-//                 title: "New Product Available ",
-//                 text: "HEY! Take a look at this brand new t-shirt!",
-//                 image: "/images/jason-leung-HM6TMmevbZQ-unsplash.jpg",
-//                 tag: "new-product",
-//                 url: "/new-product-jason-leung-HM6TMmevbZQ-unsplash.html",
-//             })
-//         )
-//         .catch((err) => {
-//             console.log(err);
-//         });
-
-//     res.status(202).json({});
-// }
-
-// module.exports = { handlePushNotificationSubscription, sendPushNotification };
-
+// Initialize Firebase Admin SDK
+if (!admin.apps.length) {
+    const serviceAccount = require("../../service_key.json");
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+    });
+}
 class Subscription {
-    pushToSubscription(subscription, data) {
-        const options = {
-            vapidDetails: {
-                subject: "https://hoangdv.medium.com/",
-                publicKey: process.env.PUBLIC_VAPID_KEY,
-                privateKey: process.env.PRIVATE_VAPID_KEY,
+    async pushToSubscription(subscription, message) {
+        // if (!subscription) {
+        //     throw new Error("No subscription available");
+        // }
+
+        // const options = {
+        //     vapidDetails: {
+        //         subject: "https://localhost:3000/",
+        //         publicKey: process.env.PUBLIC_VAPID_KEY,
+        //         privateKey: process.env.PRIVATE_VAPID_KEY,
+        //     },
+        //     // 1 hour in seconds.
+        //     TTL: 60 * 60,
+        // };
+
+        const token =
+            "cWPqvJVP5GQgRhc_jH0iMY:APA91bF5taz_h_Oq9Q1Fws3tAyBIpYNF1LKx0qyMyI-LQbNBHR2d9J3DwLFinJKYZl9naALiPbncuoBHB0ujqJRYZQr_uzxS2GAi90lomEzRlee7A6VPoY8Bte83berESw97xKcJb-q0";
+        const link = "https://localhost:3000/user/note";
+        const payload = {
+            token,
+            notification: {
+                title: "Notification",
+                body: message,
             },
-            // 1 hour in seconds.
-            TTL: 60 * 60,
+            webpush: link && {
+                fcmOptions: {
+                    link,
+                },
+            },
         };
 
-        return webpush.sendNotification(
-            subscription,
-            JSON.stringify(data),
-            options
-        );
+        // return webpush.sendNotification(
+        //     subscription,
+        //     JSON.stringify(data),
+        //     options
+        // );
+
+        return await admin.messaging().send(payload);
     }
 }
 
