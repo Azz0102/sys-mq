@@ -5,7 +5,7 @@ const Subscription = require("./subscription.service");
 function obj() {
     this.openConnection = async () => {
         try {
-            await amqp.connect(config.RabbitMQ_URL, (err, conn) => {
+            await amqp.connect("amqp://guest:guest@localhost", (err, conn) => {
                 if (err) {
                     throw err;
                 }
@@ -23,7 +23,19 @@ function obj() {
                 if (err) {
                     throw err;
                 }
-                await ch.assertQueue(queue);
+                const channel = "coke_studio";
+                const ExchangeDLX = "notificationExDLX" + queue;
+                const RoutingKeyDLX = "notificationRoutingKeyDLX" + queue;
+                await ch.assertExchange(queue, "fanout", { durable: true });
+                const queueResult0 = await ch.assertQueue(queue, {
+                    durable: true,
+                    exclusive: false, // allow many connections to queue
+                    arguments: {
+                        "x-dead-letter-exchange": ExchangeDLX,
+                        "x-dead-letter-routing-key": RoutingKeyDLX,
+                    },
+                });
+                await ch.bindQueue(queueResult0.queue, channel, channel);
 
                 console.log("Channel created for User " + queue);
                 global.onlineusers[userid] = ch;
@@ -33,7 +45,9 @@ function obj() {
 
                 ch.consume(queue, async (msg) => {
                     try {
-                        const { content, title, subscription } = JSON.parse(msg.content.toString());
+                        const { message, subscriptions } = JSON.parse(
+                            msg.content.toString()
+                        );
 
                         console.log("Message received: ", message);
 
@@ -43,6 +57,8 @@ function obj() {
                                 " . Message received is " +
                                 msg.content.toString()
                         );
+
+                        console.log("Subscription " + subscriptions);
 
                         // const userSub = data.find(
                         //     (user) => user.name === queue
@@ -67,10 +83,10 @@ function obj() {
                         //     })
                         // );
 
-                        const formattedSubscription = {};
+                        // const formattedSubscription = {};
 
                         await Subscription.pushToSubscription(
-                            formattedSubscription,
+                            subscriptions[1],
                             message
                         );
 

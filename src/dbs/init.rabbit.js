@@ -4,7 +4,7 @@ const amqp = require("amqplib");
 
 const connectToRabbitMQ = async () => {
     try {
-        const connection = await amqp.connect("amqp://guest:12345@localhost");
+        const connection = await amqp.connect("amqp://guest:guest@localhost");
 
         if (!connection) throw new Error("Connection not established");
 
