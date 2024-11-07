@@ -60,6 +60,11 @@ function obj() {
 
                         console.log("Subscription " + subscriptions);
 
+                        const userSub = subscriptions.find(
+                            (subscription) =>
+                                subscription.KeyStore.User.name === queue
+                        );
+
                         // const userSub = data.find(
                         //     (user) => user.name === queue
                         // );
@@ -85,10 +90,7 @@ function obj() {
 
                         // const formattedSubscription = {};
 
-                        await Subscription.pushToSubscription(
-                            subscriptions[1],
-                            message
-                        );
+                        await Subscription.pushToSubscription(userSub, message);
 
                         // var message = {
                         //     username: queue,
