@@ -45,7 +45,7 @@ function obj() {
 
                 ch.consume(queue, async (msg) => {
                     try {
-                        const { message, subscriptions } = JSON.parse(
+                        const { message, subscriptions, type, id } = JSON.parse(
                             msg.content.toString()
                         );
 
@@ -90,7 +90,12 @@ function obj() {
 
                         // const formattedSubscription = {};
 
-                        await Subscription.pushToSubscription(userSub, message);
+                        await Subscription.pushToSubscription(
+                            userSub,
+                            message,
+                            type,
+                            id
+                        );
 
                         // var message = {
                         //     username: queue,

@@ -112,7 +112,7 @@ if (!admin.apps.length) {
     });
 }
 class Subscription {
-    async pushToSubscription(subscription, message) {
+    async pushToSubscription(subscription, message, type) {
         // if (!subscription) {
         //     throw new Error("No subscription available");
         // }
@@ -129,7 +129,7 @@ class Subscription {
 
         console.log("sub", subscription);
         if (subscription.KeyStore.device === "web") {
-            const link = "https://localhost:3000/user/news/";
+            const link = `https://localhost:3000/user/news/${id}`;
             const payload = {
                 token: subscription.endpoint,
                 notification: {
