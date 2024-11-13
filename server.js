@@ -22,6 +22,7 @@ const queueName = "test-topic";
 //     .catch((err) => {
 //         console.error(`Message Error: ${err.message}`);
 //     });
+
 global.config = require("./config");
 
 const notificationServer = require("./src/services/notification.service");

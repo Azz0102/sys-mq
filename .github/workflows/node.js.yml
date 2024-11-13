@@ -27,7 +27,7 @@ jobs:
         envkey_RABBIT_URL: amqp://guest:guest@18.141.143.72
         envkey_PORT: 4000
         envkey_FRONTEND_URL: localhost:3000
-        envkey_EXPO_ACCESS_TOKEN: 123
+        envkey_EXPO_ACCESS_TOKEN: 123423
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
