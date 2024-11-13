@@ -1,6 +1,9 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const config = {
-    PORT: 4000,
-    RabbitMQ_URL: "amqp://guest:12345@172.17.0.3",
+    PORT: process.env.PORT || 4000,
+    RabbitMQ_URL: process.env.RABBIT_URL,
 };
 
 module.exports = config;

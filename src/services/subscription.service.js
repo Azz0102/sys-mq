@@ -1,7 +1,7 @@
 "use strict";
 // const subscriptions = {};
 // var crypto = require("crypto");
-require("dotenv");
+require("dotenv").config();
 const { Expo } = require("expo-server-sdk");
 const admin = require("firebase-admin");
 let expo = new Expo({
@@ -129,7 +129,7 @@ class Subscription {
 
         console.log("sub", subscription);
         if (subscription.KeyStore.device === "web") {
-            const link = `https://localhost:3000/user/news/${id}`;
+            const link = `https://${process.env.FRONTEND_URL}/user/news/${id}`;
             const payload = {
                 token: subscription.endpoint,
                 notification: {

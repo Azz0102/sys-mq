@@ -2,10 +2,11 @@
 const amqp = require("amqplib/callback_api");
 const { connectToRabbitMQ } = require("../dbs/init.rabbit");
 const Subscription = require("./subscription.service");
+const config = require("../../config");
 function obj() {
     this.openConnection = async () => {
         try {
-            await amqp.connect("amqp://guest:guest@localhost", (err, conn) => {
+            await amqp.connect(config.RabbitMQ_URL, (err, conn) => {
                 if (err) {
                     throw err;
                 }
