@@ -19,10 +19,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Make envfile
+      uses: SpicyPizza/create-envfile@v2.0
+      with:
+        envkey_PUBLIC_VAPID_KEY: BKxSLkwNdzko_M8FoTphWoX8iI0maZEFpz-grHp92u-2_xRdd7rmoZszd7GVfsgo9EBJbrPSLATOKIay9mA5lq0
+        envkey_PRIVATE_VAPID_KEY: cq9cR_q_W81R4I36XfZhAjn2Yhhb-_ezVMh_FQabvzI
+        envkey_RABBIT_URL: amqp://guest:guest@18.141.143.72
+        envkey_PORT: 4000
+        envkey_FRONTEND_URL: localhost:3000
+        envkey_EXPO_ACCESS_TOKEN: 123
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-  
+    - run: pm2 restart sysmq  
