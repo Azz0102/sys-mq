@@ -61,10 +61,12 @@ function obj() {
 
                         console.log("Subscription " + subscriptions);
 
-                        const userSub = subscriptions.find(
+                        const userSub = subscriptions.filter(
                             (subscription) =>
                                 subscription.KeyStore.User.name === queue
                         );
+
+                        console.log("userSub " + userSub);
 
                         // const userSub = data.find(
                         //     (user) => user.name === queue
@@ -90,13 +92,14 @@ function obj() {
                         // );
 
                         // const formattedSubscription = {};
-
-                        await Subscription.pushToSubscription(
-                            userSub,
-                            message,
-                            type,
-                            id
-                        );
+                        for (let i = 0; i < userSub.length; i++) {
+                            await Subscription.pushToSubscription(
+                                userSub[i],
+                                message,
+                                type,
+                                id
+                            );
+                        }
 
                         // var message = {
                         //     username: queue,
