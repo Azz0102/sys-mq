@@ -39,7 +39,7 @@ class Subscription {
                         link,
                     },
                     notification: {
-                        title: "Notification",
+                        title: "Thông báo",
                         body: message,
                         icon: "https://res.cloudinary.com/iticeteashop/image/upload/v1733644959/web-app-manifest-192x192_nybyhr.png",
                     },
@@ -63,7 +63,7 @@ class Subscription {
             messages.push({
                 to: subscription.endpoint,
                 sound: "default",
-                title: "Notification",
+                title: "Thông báo",
                 body: message,
                 data: { withSome: "data" },
                 // icon: "https://res.cloudinary.com/iticeteashop/image/upload/v1733644959/web-app-manifest-192x192_nybyhr.png",
